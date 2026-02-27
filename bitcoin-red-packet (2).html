@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitcoin Red Packet</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Noto+Serif+SC:wght@400;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #c0392b;
+    --primary-light: #e74c3c;
+    --primary-dark: #922b21;
+    --gold: #f1c40f;
+    --gold-light: #f9e079;
+    --accent: #ff6b35;
+    --bg: #1a0505;
+    --surface: #2d0a0a;
+    --text: #fdf0e0;
+    --text-muted: #c0a080;
+    --border: rgba(241,196,15,0.3);
+    --glow: rgba(192,57,43,0.5);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background 0.5s, color 0.5s;
+  }
+
+  /* THEME CLASSES */
+  body.theme-cny { --primary:#c0392b; --primary-light:#e74c3c; --primary-dark:#922b21; --bg:#1a0505; --surface:#2d0a0a; --glow:rgba(192,57,43,0.5); }
+  body.theme-christmas { --primary:#1a7a3c; --primary-light:#27ae60; --primary-dark:#0e5c2a; --bg:#020f06; --surface:#051a0d; --glow:rgba(26,122,60,0.5); }
+  body.theme-eid-fitr { --primary:#c8b8a2; --primary-light:#e8d8c4; --primary-dark:#a09080; --gold:#c0a060; --bg:#faf7f2; --surface:#f0ead8; --text:#2c1810; --text-muted:#7a6050; --glow:rgba(200,184,162,0.5); }
+  body.theme-eid-adha { --primary:#c9a000; --primary-light:#f0c020; --primary-dark:#8a6e00; --bg:#0f0a00; --surface:#1a1200; --glow:rgba(201,160,0,0.5); }
+  body.theme-giveaway { --primary:#1565c0; --primary-light:#1e88e5; --primary-dark:#0d47a1; --bg:#020810; --surface:#040d1a; --glow:rgba(21,101,192,0.5); }
+
+  /* PARTICLES */
+  #particles { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden; }
+  .particle { position:absolute; border-radius:50%; animation: float linear infinite; opacity:0.6; }
+  @keyframes float { 0%{transform:translateY(100vh) rotate(0deg);opacity:0} 10%{opacity:0.6} 90%{opacity:0.6} 100%{transform:translateY(-10vh) rotate(720deg);opacity:0} }
+
+  /* LAYOUT */
+  .container { max-width:1200px; margin:0 auto; padding:0 20px; position:relative; z-index:1; }
+  
+  /* HEADER */
+  header {
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(10px);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-inner { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+  .logo { display:flex; align-items:center; gap:12px; }
+  .logo-icon { width:48px; height:48px; background:linear-gradient(135deg,var(--primary),var(--gold)); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px; box-shadow:0 0 20px var(--glow); }
+  .logo-text { font-family:'Cinzel Decorative',serif; font-size:1.3rem; font-weight:700; background:linear-gradient(135deg,var(--primary-light),var(--gold)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  .header-actions { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+
+  /* BUTTONS */
+  .btn { padding:10px 20px; border-radius:10px; border:none; cursor:pointer; font-family:'Rajdhani',sans-serif; font-weight:600; font-size:0.95rem; transition:all 0.2s; text-decoration:none; display:inline-flex; align-items:center; gap:6px; }
+  .btn-primary { background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; box-shadow:0 4px 15px var(--glow); }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 6px 25px var(--glow); filter:brightness(1.1); }
+  .btn-gold { background:linear-gradient(135deg,var(--gold),#c9a000); color:#1a0505; }
+  .btn-gold:hover { transform:translateY(-2px); filter:brightness(1.1); }
+  .btn-outline { background:transparent; border:1px solid var(--border); color:var(--text); }
+  .btn-outline:hover { border-color:var(--gold); color:var(--gold); }
+  .btn-sm { padding:6px 14px; font-size:0.85rem; }
+  .btn-danger { background:linear-gradient(135deg,#c0392b,#922b21); color:#fff; }
+
+  /* WALLET */
+  #walletBtn { position:relative; }
+  .wallet-badge { background:linear-gradient(135deg,var(--primary),var(--gold)); color:#fff; padding:4px 10px; border-radius:20px; font-size:0.8rem; font-weight:700; }
+  .wallet-dropdown { position:absolute; top:calc(100% + 8px); right:0; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px; min-width:280px; z-index:200; display:none; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
+  .wallet-dropdown.open { display:block; animation:fadeDown 0.2s; }
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+  .wallet-addr { font-size:0.75rem; color:var(--text-muted); word-break:break-all; margin-bottom:10px; }
+  .balance-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--border); }
+  .balance-row:last-child { border-bottom:none; }
+  .balance-label { color:var(--text-muted); font-size:0.85rem; }
+  .balance-val { font-weight:700; color:var(--gold); }
+
+  /* THEME SELECTOR */
+  .theme-bar { padding:16px 0; border-bottom:1px solid var(--border); background:rgba(0,0,0,0.2); }
+  .theme-pills { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+  .theme-pill { padding:8px 18px; border-radius:30px; border:2px solid transparent; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; background:rgba(255,255,255,0.05); color:var(--text); }
+  .theme-pill:hover, .theme-pill.active { border-color:var(--gold); background:var(--primary); color:#fff; transform:scale(1.05); }
+  .theme-pill.active { box-shadow:0 0 15px var(--glow); }
+
+  /* NETWORK SELECTOR */
+  .network-bar { padding:12px 0; border-bottom:1px solid var(--border); }
+  .network-pills { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+  .net-pill { padding:6px 14px; border-radius:20px; border:1px solid var(--border); cursor:pointer; font-size:0.8rem; font-weight:600; transition:all 0.2s; color:var(--text-muted); }
+  .net-pill:hover { border-color:var(--primary-light); color:var(--primary-light); }
+  .net-pill.active { background:var(--primary); border-color:var(--primary); color:#fff; box-shadow:0 0 10px var(--glow); }
+  .net-dot { width:8px; height:8px; border-radius:50%; background:#2ecc71; display:inline-block; margin-right:4px; animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* HERO */
+  .hero { padding:60px 0 40px; text-align:center; }
+  .hero-title { font-family:'Cinzel Decorative',serif; font-size:clamp(1.8rem,5vw,3.5rem); font-weight:900; line-height:1.1; margin-bottom:16px; background:linear-gradient(135deg,var(--primary-light),var(--gold),var(--primary-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; text-shadow:none; animation:shimmer 3s linear infinite; background-size:200%; }
+  @keyframes shimmer { 0%{background-position:0%} 100%{background-position:200%} }
+  .hero-sub { color:var(--text-muted); font-size:1.1rem; max-width:600px; margin:0 auto 32px; }
+  .hero-cta { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+
+  /* TABS */
+  .tabs { display:flex; gap:4px; background:rgba(0,0,0,0.3); padding:4px; border-radius:14px; width:fit-content; margin:32px auto 0; }
+  .tab { padding:10px 24px; border-radius:10px; cursor:pointer; font-weight:600; transition:all 0.2s; color:var(--text-muted); border:none; background:transparent; font-family:'Rajdhani',sans-serif; font-size:0.95rem; }
+  .tab.active { background:var(--primary); color:#fff; box-shadow:0 4px 12px var(--glow); }
+
+  /* SECTIONS */
+  .section { padding:32px 0; }
+  .section-title { font-family:'Cinzel Decorative',serif; font-size:1.4rem; font-weight:700; color:var(--gold); margin-bottom:24px; display:flex; align-items:center; gap:10px; }
+  .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* FORM */
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:28px; margin-bottom:20px; }
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:640px){ .form-grid{grid-template-columns:1fr;} }
+  .form-group { display:flex; flex-direction:column; gap:6px; }
+  .form-group.full { grid-column:1/-1; }
+  label { font-weight:600; font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; }
+  input, select, textarea {
+    background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:10px; padding:12px 14px;
+    color:var(--text); font-family:'Rajdhani',sans-serif; font-size:1rem; transition:border 0.2s;
+    width:100%;
+  }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--primary-light); box-shadow:0 0 0 3px rgba(192,57,43,0.15); }
+  select option { background:var(--bg); }
+  .hint { font-size:0.78rem; color:var(--text-muted); }
+
+  /* TOGGLE */
+  .toggle-group { display:flex; gap:4px; background:rgba(0,0,0,0.3); padding:4px; border-radius:10px; }
+  .toggle-btn { flex:1; padding:8px; border-radius:8px; border:none; cursor:pointer; font-weight:600; font-family:'Rajdhani',sans-serif; transition:all 0.2s; background:transparent; color:var(--text-muted); }
+  .toggle-btn.active { background:var(--primary); color:#fff; }
+
+  /* TOKEN SELECT */
+  .token-row { display:flex; gap:8px; align-items:flex-end; }
+  .token-row > *:first-child { flex:1; }
+  .token-badge { background:rgba(0,0,0,0.4); border:1px solid var(--border); border-radius:8px; padding:12px; font-size:0.8rem; color:var(--text-muted); white-space:nowrap; }
+
+  /* RED PACKET CARD */
+  .packet-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:20px; }
+  .packet-card {
+    border-radius:20px; overflow:hidden; cursor:pointer; transition:transform 0.2s, box-shadow 0.2s;
+    border:1px solid var(--border); position:relative;
+  }
+  .packet-card:hover { transform:translateY(-4px); box-shadow:0 20px 50px var(--glow); }
+  .packet-header { padding:20px; background:linear-gradient(135deg,var(--primary),var(--primary-dark)); position:relative; overflow:hidden; }
+  .packet-header::before { content:'🧧'; position:absolute; right:-10px; bottom:-15px; font-size:80px; opacity:0.15; }
+  .packet-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:700; background:rgba(255,255,255,0.2); color:#fff; margin-bottom:8px; }
+  .packet-amount { font-family:'Cinzel Decorative',serif; font-size:1.8rem; font-weight:900; color:#fff; text-shadow:0 2px 10px rgba(0,0,0,0.3); }
+  .packet-token { font-size:0.9rem; color:rgba(255,255,255,0.7); }
+  .packet-body { padding:16px; background:var(--surface); }
+  .packet-info-row { display:flex; justify-content:space-between; font-size:0.85rem; padding:4px 0; color:var(--text-muted); }
+  .packet-info-row span:last-child { color:var(--text); font-weight:600; }
+  .progress-bar { height:6px; background:rgba(0,0,0,0.3); border-radius:3px; margin:10px 0; overflow:hidden; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,var(--primary),var(--gold)); border-radius:3px; transition:width 0.5s; }
+  .packet-footer { padding:12px 16px; border-top:1px solid var(--border); display:flex; gap:8px; }
+
+  /* CLAIM MODAL */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(4px); z-index:500; display:none; align-items:center; justify-content:center; padding:20px; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:var(--surface); border:1px solid var(--border); border-radius:24px; max-width:520px; width:100%; max-height:90vh; overflow-y:auto; animation:modalIn 0.3s; box-shadow:0 30px 80px rgba(0,0,0,0.6); }
+  @keyframes modalIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
+  .modal-header { padding:24px 24px 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .modal-title { font-family:'Cinzel Decorative',serif; font-size:1.2rem; color:var(--gold); }
+  .modal-close { width:32px; height:32px; border-radius:50%; border:1px solid var(--border); background:transparent; color:var(--text-muted); cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center; }
+  .modal-body { padding:24px; }
+  .modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:flex-end; }
+
+  /* HISTORY TABLE */
+  .history-table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+  .history-table th { padding:10px 14px; text-align:left; color:var(--text-muted); font-weight:600; border-bottom:1px solid var(--border); white-space:nowrap; }
+  .history-table td { padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.05); }
+  .history-table tr:hover td { background:rgba(255,255,255,0.02); }
+  .status-badge { padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:700; }
+  .status-active { background:rgba(46,204,113,0.2); color:#2ecc71; }
+  .status-claimed { background:rgba(241,196,15,0.2); color:#f1c40f; }
+  .status-expired { background:rgba(149,165,166,0.2); color:#95a5a6; }
+
+  /* RECIPIENT LIST */
+  .recipient-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; max-height:300px; overflow-y:auto; }
+  .recipient-item { background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:10px; padding:10px; font-size:0.78rem; }
+  .recipient-addr { color:var(--text-muted); word-break:break-all; }
+  .recipient-amount { color:var(--gold); font-weight:700; margin-top:4px; }
+
+  /* INVITE */
+  .invite-box { background:rgba(0,0,0,0.4); border:1px solid var(--border); border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:10px; }
+  .invite-link { flex:1; font-size:0.85rem; color:var(--text-muted); word-break:break-all; }
+  .invite-code { font-family:monospace; font-size:1.4rem; font-weight:700; letter-spacing:0.2em; color:var(--gold); text-align:center; padding:12px; background:rgba(0,0,0,0.3); border-radius:10px; }
+
+  /* ALERTS */
+  .alert { padding:12px 16px; border-radius:10px; font-size:0.9rem; margin-bottom:16px; display:flex; align-items:flex-start; gap:10px; }
+  .alert-warning { background:rgba(241,196,15,0.15); border:1px solid rgba(241,196,15,0.3); color:#f1c40f; }
+  .alert-info { background:rgba(52,152,219,0.15); border:1px solid rgba(52,152,219,0.3); color:#3498db; }
+  .alert-success { background:rgba(46,204,113,0.15); border:1px solid rgba(46,204,113,0.3); color:#2ecc71; }
+  .alert-error { background:rgba(231,76,60,0.15); border:1px solid rgba(231,76,60,0.3); color:#e74c3c; }
+
+  /* DECORATIVE ELEMENTS */
+  .lantern { font-size:2rem; animation:swing 3s ease-in-out infinite; display:inline-block; }
+  @keyframes swing { 0%,100%{transform:rotate(-8deg)} 50%{transform:rotate(8deg)} }
+  .divider { height:1px; background:linear-gradient(90deg,transparent,var(--border),transparent); margin:24px 0; }
+  
+  /* TICKER */
+  .ticker-bar { background:rgba(0,0,0,0.4); border-bottom:1px solid var(--border); padding:8px 0; overflow:hidden; }
+  .ticker-inner { display:flex; gap:40px; animation:ticker 30s linear infinite; white-space:nowrap; }
+  @keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  .ticker-item { font-size:0.82rem; color:var(--text-muted); display:flex; gap:6px; align-items:center; }
+  .ticker-item span { color:var(--gold); font-weight:700; }
+
+  /* TOAST */
+  #toast { position:fixed; bottom:24px; right:24px; z-index:1000; display:flex; flex-direction:column; gap:8px; }
+  .toast-msg { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 18px; font-size:0.9rem; animation:toastIn 0.3s; box-shadow:0 10px 30px rgba(0,0,0,0.4); max-width:320px; }
+  @keyframes toastIn { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:translateX(0)} }
+
+  /* STATS ROW */
+  .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:32px; }
+  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px; text-align:center; }
+  .stat-num { font-family:'Cinzel Decorative',serif; font-size:1.6rem; font-weight:900; color:var(--gold); }
+  .stat-lbl { font-size:0.8rem; color:var(--text-muted); margin-top:4px; }
+
+  /* HIDDEN */
+  .hidden { display:none !important; }
+  
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--primary); border-radius:3px; }
+  
+  /* ORNAMENT */
+  .ornament { text-align:center; font-size:1.5rem; opacity:0.3; letter-spacing:0.5em; margin:8px 0; }
+  
+  /* REQUIREMENT CHECK */
+  .req-list { display:flex; flex-direction:column; gap:8px; }
+  .req-item { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; background:rgba(0,0,0,0.2); }
+  .req-icon { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0; }
+  .req-icon.done { background:rgba(46,204,113,0.3); color:#2ecc71; }
+  .req-icon.pending { background:rgba(149,165,166,0.3); color:#95a5a6; }
+  .req-text { font-size:0.9rem; }
+  
+  /* CONFETTI */
+  .confetti-piece { position:fixed; top:-10px; pointer-events:none; z-index:9999; animation:confettiFall linear forwards; border-radius:2px; }
+  @keyframes confettiFall { 0%{transform:translateY(0) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
+  
+  @media(max-width:480px){
+    .logo-text{font-size:1rem;}
+    .hero-cta{flex-direction:column;align-items:center;}
+    .tabs{flex-direction:column;width:100%;}
+    .form-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body class="theme-cny">
+
+<!-- PARTICLES -->
+<div id="particles"></div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-inner" id="tickerInner">
+    <div class="ticker-item">₿ BTC/USD <span>$96,420</span></div>
+    <div class="ticker-item">🔴 Red Packets Created <span id="totalPackets">0</span></div>
+    <div class="ticker-item">🎁 Total Claimed <span id="totalClaimed">0</span></div>
+    <div class="ticker-item">👥 Participants <span id="totalParticipants">0</span></div>
+    <div class="ticker-item">✨ Powered by Opnet</div>
+    <div class="ticker-item">₿ BTC/USD <span>$96,420</span></div>
+    <div class="ticker-item">🔴 Red Packets Created <span>0</span></div>
+    <div class="ticker-item">🎁 Total Claimed <span>0</span></div>
+    <div class="ticker-item">👥 Participants <span>0</span></div>
+    <div class="ticker-item">✨ Powered by Opnet</div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="container">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">🧧</div>
+        <div class="logo-text">Bitcoin Red Packet</div>
+      </div>
+      <div class="header-actions">
+        <a href="https://twitter.com/KangCrypto8" target="_blank" class="btn btn-outline btn-sm">🐦 @KangCrypto8</a>
+        <div style="position:relative">
+          <button class="btn btn-primary" id="walletBtn" onclick="toggleWalletDropdown()">
+            <span id="walletBtnText">🔗 Connect Wallet</span>
+          </button>
+          <div class="wallet-dropdown" id="walletDropdown">
+            <div id="walletDropdownContent"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- THEME BAR -->
+<div class="theme-bar">
+  <div class="container">
+    <div class="theme-pills">
+      <button class="theme-pill active" onclick="setTheme('cny','🏮 Chinese New Year')">🏮 Chinese New Year</button>
+      <button class="theme-pill" onclick="setTheme('christmas','🎄 Christmas & New Year')">🎄 Christmas & New Year</button>
+      <button class="theme-pill" onclick="setTheme('eid-fitr','🌙 Eid al-Fitr')">🌙 Eid al-Fitr</button>
+      <button class="theme-pill" onclick="setTheme('eid-adha','🐑 Eid al-Adha')">🐑 Eid al-Adha</button>
+      <button class="theme-pill" onclick="setTheme('giveaway','🎉 Giveaway')">🎉 Giveaway</button>
+    </div>
+  </div>
+</div>
+
+<!-- NETWORK BAR -->
+<div class="network-bar">
+  <div class="container">
+    <div class="network-pills">
+      <button class="net-pill active" onclick="setNetwork('testnet3')" data-net="testnet3"><span class="net-dot"></span>BTC Testnet 3</button>
+      <button class="net-pill" onclick="setNetwork('testnet4')" data-net="testnet4"><span class="net-dot"></span>BTC Testnet 4</button>
+      <button class="net-pill" onclick="setNetwork('opnet')" data-net="opnet"><span class="net-dot"></span>Opnet Testnet</button>
+      <button class="net-pill" onclick="setNetwork('regtest')" data-net="regtest"><span class="net-dot"></span>Bitcoin RegTest</button>
+      <button class="net-pill" onclick="setNetwork('mainnet')" data-net="mainnet"><span class="net-dot"></span>⚡ Bitcoin Mainnet</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main>
+  <div class="container">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div><span class="lantern">🏮</span> <span class="lantern" style="animation-delay:0.5s">🧧</span> <span class="lantern" style="animation-delay:1s">🏮</span></div>
+      <h1 class="hero-title" id="heroTitle">Bitcoin Red Packet</h1>
+      <p class="hero-sub" id="heroSub">Send Bitcoin joy to up to 1,000 friends. Create, share, and celebrate with on-chain red packets powered by Opnet.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="switchTab('create')">🎁 Create Red Packet</button>
+        <button class="btn btn-outline" onclick="switchTab('claim')">📬 Claim Red Packet</button>
+        <button class="btn btn-outline" onclick="switchTab('history')">📜 History</button>
+      </div>
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('create')" id="tab-create">Create</button>
+        <button class="tab" onclick="switchTab('claim')" id="tab-claim">Claim</button>
+        <button class="tab" onclick="switchTab('explore')" id="tab-explore">Explore</button>
+        <button class="tab" onclick="switchTab('history')" id="tab-history">History</button>
+      </div>
+    </div>
+
+    <!-- ===== CREATE TAB ===== -->
+    <div id="pane-create" class="section">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num" id="myPacketCount">0</div><div class="stat-lbl">My Red Packets</div></div>
+        <div class="stat-card"><div class="stat-num" id="totalSentCount">0</div><div class="stat-lbl">Total Sent</div></div>
+        <div class="stat-card"><div class="stat-num" id="claimRateDisplay">0%</div><div class="stat-lbl">Claim Rate</div></div>
+        <div class="stat-card"><div class="stat-num" id="networkDisplay">Testnet3</div><div class="stat-lbl">Network</div></div>
+      </div>
+
+      <div class="alert alert-info" id="walletAlert">🔗 Please connect your Opnet Wallet to create a Red Packet.</div>
+
+      <div class="card">
+        <div class="section-title">🧧 Create Red Packet</div>
+
+        <div class="form-grid">
+          <!-- TOKEN / ASSET -->
+          <div class="form-group">
+            <label>Asset / Token</label>
+            <select id="assetSelect" onchange="onAssetChange()">
+              <option value="btc">₿ Bitcoin (BTC)</option>
+            </select>
+          </div>
+          <div class="form-group" id="customTokenGroup" style="display:none">
+            <label>Custom Token Contract Address</label>
+            <input type="text" id="customTokenAddr" placeholder="0x..." />
+          </div>
+
+          <!-- AMOUNT -->
+          <div class="form-group">
+            <label>Total Amount</label>
+            <div class="token-row">
+              <input type="number" id="totalAmount" placeholder="0.0" min="0" step="0.00000001" oninput="calcPreview()" />
+              <div class="token-badge" id="amountUnit">BTC</div>
+            </div>
+            <span class="hint" id="usdPreview">≈ $0.00 USD</span>
+          </div>
+
+          <!-- RECIPIENTS -->
+          <div class="form-group">
+            <label>Number of Recipients <span style="color:var(--text-muted)">(1–1,000)</span></label>
+            <input type="number" id="recipientCount" placeholder="10" min="1" max="1000" value="10" oninput="calcPreview()" />
+          </div>
+
+          <!-- MECHANISM -->
+          <div class="form-group">
+            <label>Distribution Mechanism</label>
+            <div class="toggle-group">
+              <button class="toggle-btn active" id="modeEqual" onclick="setMode('equal')">⚖️ Equal</button>
+              <button class="toggle-btn" id="modeRandom" onclick="setMode('random')">🎲 Random</button>
+            </div>
+          </div>
+
+          <!-- EXPIRY -->
+          <div class="form-group">
+            <label>Expires In</label>
+            <select id="expirySelect">
+              <option value="1">1 Hour</option>
+              <option value="24" selected>24 Hours</option>
+              <option value="72">3 Days</option>
+              <option value="168">7 Days</option>
+              <option value="720">30 Days</option>
+            </select>
+          </div>
+
+          <!-- MESSAGE -->
+          <div class="form-group full">
+            <label>Message (Optional)</label>
+            <input type="text" id="packetMsg" placeholder="Wishing you prosperity! 🧧" maxlength="100" />
+          </div>
+
+          <!-- TWITTER -->
+          <div class="form-group full">
+            <label>Your Twitter Handle (for follow requirement)</label>
+            <input type="text" id="creatorTwitter" placeholder="@YourHandle" />
+            <span class="hint">Recipients must follow you AND @KangCrypto8 to claim.</span>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- PREVIEW -->
+        <div class="alert alert-warning" id="previewBox">
+          <div id="previewText">Fill in the form to see preview...</div>
+        </div>
+
+        <div style="display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px;">
+          <button class="btn btn-outline" onclick="resetForm()">↺ Reset</button>
+          <button class="btn btn-gold" id="createBtn" onclick="createRedPacket()">🧧 Create Red Packet</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CLAIM TAB ===== -->
+    <div id="pane-claim" class="section hidden">
+      <div class="card">
+        <div class="section-title">📬 Claim Red Packet</div>
+        <div class="alert alert-info">Paste an invitation link or enter a claim code to claim your red packet.</div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Claim Code</label>
+            <input type="text" id="claimCode" placeholder="e.g. ABCD1234" style="text-transform:uppercase;letter-spacing:0.1em" />
+          </div>
+          <div class="form-group">
+            <label>— or — Invitation Link</label>
+            <input type="text" id="claimLink" placeholder="https://btcredpacket.io/claim/..." />
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div id="claimPreview" class="hidden">
+          <div class="section-title" style="font-size:1rem">📋 Red Packet Details</div>
+          <div id="claimPacketCard"></div>
+          
+          <div class="divider"></div>
+          <div class="section-title" style="font-size:1rem">✅ Requirements</div>
+          <div class="req-list" id="reqList"></div>
+          <div style="margin-top:16px;">
+            <button class="btn btn-primary" id="claimSubmitBtn" onclick="submitClaim()">🎁 Claim Now</button>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:16px;">
+          <button class="btn btn-primary" onclick="lookupCode()">🔍 Look Up</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== EXPLORE TAB ===== -->
+    <div id="pane-explore" class="section hidden">
+      <div class="section-title">🌐 Active Red Packets</div>
+      <div id="exploreGrid" class="packet-grid">
+        <div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:40px">
+          No active red packets yet. <a href="#" onclick="switchTab('create')" style="color:var(--primary-light)">Create one!</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== HISTORY TAB ===== -->
+    <div id="pane-history" class="section hidden">
+      <div class="section-title">📜 Creation & Receipt History</div>
+      <div style="overflow-x:auto;">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Theme</th>
+              <th>Network</th>
+              <th>Asset</th>
+              <th>Total</th>
+              <th>Recipients</th>
+              <th>Claimed</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr><td colspan="10" style="text-align:center;color:var(--text-muted);padding:40px">No history yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Red Packet Details</div>
+      <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🎉 Red Packet Created!</div>
+      <button class="modal-close" onclick="closeModal('successModal')">✕</button>
+    </div>
+    <div class="modal-body" id="successBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('successModal')">Close</button>
+      <button class="btn btn-gold" onclick="sharePacket()">📤 Share</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== STATE =====================
+const STATE = {
+  connected: false,
+  address: null,
+  network: 'testnet3',
+  theme: 'cny',
+  balances: {},
+  packets: JSON.parse(localStorage.getItem('brp_packets') || '[]'),
+  claims: JSON.parse(localStorage.getItem('brp_claims') || '[]'),
+  mode: 'equal',
+  createdPacket: null,
+  btcPrice: 96420
+};
+
+const NETWORKS = {
+  testnet3: { name: 'BTC Testnet 3', short: 'T3', assets: ['btc'], isOpnet: false },
+  testnet4: { name: 'BTC Testnet 4', short: 'T4', assets: ['btc'], isOpnet: false },
+  opnet: { name: 'Opnet Testnet', short: 'OPN', assets: ['btc','pill','moto','custom'], isOpnet: true },
+  regtest: { name: 'Bitcoin RegTest', short: 'REG', assets: ['btc','pill','moto','custom'], isOpnet: true },
+  mainnet: { name: 'Bitcoin Mainnet', short: 'MAIN', assets: ['btc'], isOpnet: false }
+};
+
+const TOKEN_CONTRACTS = {
+  opnet: { pill: '0xb09fc29c112af8293539477e23d8df1d3126639642767d707277131352040cbb', moto: '0xfd4473840751d58d9f8b73bdd57d6c5260453d5518bd7cd02d0a4cf3df9bf4dd' },
+  regtest: { pill: '0xfb7df2f08d8042d4df0506c0d4cee3cfa5f2d7b02ef01ec76dd699551393a438', moto: '0x0a6732489a31e6de07917a28ff7df311fc5f98f6e1664943ac1c3fe7893bdab5' }
+};
+
+const THEME_CONFIG = {
+  cny: { name: 'Chinese New Year', emoji: '🏮', color: '#c0392b', heroEmoji: '🏮🧧🎋' },
+  christmas: { name: 'Christmas & New Year', emoji: '🎄', color: '#1a7a3c', heroEmoji: '🎄🎁⛄' },
+  'eid-fitr': { name: 'Eid al-Fitr', emoji: '🌙', color: '#c8b8a2', heroEmoji: '🌙✨🕌' },
+  'eid-adha': { name: 'Eid al-Adha', emoji: '🐑', color: '#c9a000', heroEmoji: '🐑🌟🕌' },
+  giveaway: { name: 'Giveaway', emoji: '🎉', color: '#1565c0', heroEmoji: '🎉🎊🎁' }
+};
+
+// ===================== PARTICLES =====================
+function initParticles() {
+  const container = document.getElementById('particles');
+  container.innerHTML = '';
+  const colors = getComputedStyle(document.body).getPropertyValue('--primary').trim();
+  const shapes = STATE.theme === 'cny' ? ['🏮','🧧','✨','💫'] :
+                 STATE.theme === 'christmas' ? ['❄️','⭐','🎄','✨'] :
+                 STATE.theme === 'eid-fitr' ? ['✨','🌟','⭐','💫'] :
+                 STATE.theme === 'eid-adha' ? ['⭐','✨','🌟','💛'] :
+                 ['🎉','🎊','✨','💎'];
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `
+      left:${Math.random()*100}%;
+      width:${Math.random()*20+10}px;
+      height:${Math.random()*20+10}px;
+      animation-duration:${Math.random()*15+10}s;
+      animation-delay:${Math.random()*10}s;
+      font-size:${Math.random()*14+10}px;
+      background:transparent;
+    `;
+    p.textContent = shapes[Math.floor(Math.random()*shapes.length)];
+    container.appendChild(p);
+  }
+}
+
+// ===================== THEME =====================
+function setTheme(theme, name) {
+  STATE.theme = theme;
+  document.body.className = `theme-${theme}`;
+  document.querySelectorAll('.theme-pill').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  const cfg = THEME_CONFIG[theme];
+  document.getElementById('heroTitle').textContent = cfg.heroEmoji + ' Bitcoin Red Packet';
+  document.querySelector('.logo-icon').textContent = cfg.emoji;
+  initParticles();
+  toast(`Theme changed to ${cfg.name}`, 'success');
+}
+
+// ===================== NETWORK =====================
+function setNetwork(net) {
+  STATE.network = net;
+  document.querySelectorAll('.net-pill').forEach(p => p.classList.remove('active'));
+  document.querySelector(`[data-net="${net}"]`).classList.add('active');
+  document.getElementById('networkDisplay').textContent = NETWORKS[net].short;
+  updateAssetSelect();
+  if (STATE.connected) fetchBalances();
+  toast(`Switched to ${NETWORKS[net].name}`, 'info');
+}
+
+function updateAssetSelect() {
+  const sel = document.getElementById('assetSelect');
+  const net = NETWORKS[STATE.network];
+  sel.innerHTML = '';
+  if (net.assets.includes('btc')) sel.innerHTML += '<option value="btc">₿ Bitcoin (BTC)</option>';
+  if (net.assets.includes('pill')) sel.innerHTML += '<option value="pill">💊 PILL Token</option>';
+  if (net.assets.includes('moto')) sel.innerHTML += '<option value="moto">🏍 MOTO Token</option>';
+  if (net.assets.includes('custom')) sel.innerHTML += '<option value="custom">🔷 Custom Token</option>';
+  onAssetChange();
+}
+
+function onAssetChange() {
+  const val = document.getElementById('assetSelect').value;
+  document.getElementById('customTokenGroup').style.display = val === 'custom' ? 'block' : 'none';
+  document.getElementById('amountUnit').textContent = val === 'btc' ? 'BTC' : val.toUpperCase();
+  calcPreview();
+}
+
+// ===================== WALLET =====================
+async function connectWallet() {
+  // Check for Opnet wallet
+  if (typeof window.opnet !== 'undefined' || typeof window.unisat !== 'undefined' || typeof window.bitcoin !== 'undefined') {
+    try {
+      let addr;
+      if (window.opnet && window.opnet.requestAccounts) {
+        const accounts = await window.opnet.requestAccounts();
+        addr = accounts[0];
+      } else if (window.unisat) {
+        const accounts = await window.unisat.requestAccounts();
+        addr = accounts[0];
+      }
+      if (addr) {
+        STATE.connected = true;
+        STATE.address = addr;
+        document.getElementById('walletAlert').classList.add('hidden');
+        await fetchBalances();
+        updateWalletUI();
+        toast('Wallet connected!', 'success');
+        return;
+      }
+    } catch (e) { }
+  }
+  // Demo mode
+  STATE.connected = true;
+  STATE.address = 'bc1q' + Array.from({length:38},()=>'0123456789abcdef'[Math.floor(Math.random()*16)]).join('');
+  STATE.balances = { btc: (Math.random()*0.5+0.01).toFixed(8), pill: (Math.random()*10000).toFixed(2), moto: (Math.random()*5000).toFixed(2) };
+  document.getElementById('walletAlert').classList.add('hidden');
+  updateWalletUI();
+  toast('Wallet connected (demo mode)', 'success');
+}
+
+function updateWalletUI() {
+  const btn = document.getElementById('walletBtn');
+  if (STATE.connected) {
+    document.getElementById('walletBtnText').innerHTML = `<span class="wallet-badge">●</span> ${STATE.address.slice(0,8)}...${STATE.address.slice(-4)}`;
+  }
+}
+
+function toggleWalletDropdown() {
+  if (!STATE.connected) { connectWallet(); return; }
+  const dd = document.getElementById('walletDropdown');
+  dd.classList.toggle('open');
+  if (dd.classList.contains('open')) renderWalletDropdown();
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#walletBtn')) document.getElementById('walletDropdown').classList.remove('open');
+});
+
+async function fetchBalances() {
+  if (!STATE.connected) return;
+  // In real app, query opnet/bitcoin RPC here
+  STATE.balances.btc = (Math.random()*0.5+0.01).toFixed(8);
+  if (NETWORKS[STATE.network].isOpnet) {
+    STATE.balances.pill = (Math.random()*10000+100).toFixed(2);
+    STATE.balances.moto = (Math.random()*5000+100).toFixed(2);
+  }
+  renderWalletDropdown();
+}
+
+function renderWalletDropdown() {
+  const net = NETWORKS[STATE.network];
+  let html = `<div class="wallet-addr">📍 ${STATE.address}</div>
+  <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:10px;">Network: <strong>${net.name}</strong></div>`;
+  html += `<div class="balance-row"><span class="balance-label">₿ Bitcoin</span><span class="balance-val">${STATE.balances.btc || '0.00000000'} BTC</span></div>`;
+  const usdVal = ((STATE.balances.btc || 0) * STATE.btcPrice).toFixed(2);
+  html += `<div class="balance-row"><span class="balance-label">USD Value</span><span class="balance-val">$${usdVal}</span></div>`;
+  if (net.isOpnet) {
+    html += `<div class="balance-row"><span class="balance-label">💊 PILL</span><span class="balance-val">${STATE.balances.pill || '0.00'}</span></div>`;
+    html += `<div class="balance-row"><span class="balance-label">🏍 MOTO</span><span class="balance-val">${STATE.balances.moto || '0.00'}</span></div>`;
+  }
+  html += `<div class="divider"></div><button class="btn btn-danger btn-sm" style="width:100%;margin-top:8px" onclick="disconnectWallet()">Disconnect</button>`;
+  document.getElementById('walletDropdownContent').innerHTML = html;
+}
+
+function disconnectWallet() {
+  STATE.connected = false; STATE.address = null; STATE.balances = {};
+  document.getElementById('walletBtnText').innerHTML = '🔗 Connect Wallet';
+  document.getElementById('walletDropdown').classList.remove('open');
+  document.getElementById('walletAlert').classList.remove('hidden');
+  toast('Wallet disconnected', 'info');
+}
+
+// ===================== FORM =====================
+function setMode(m) {
+  STATE.mode = m;
+  document.getElementById('modeEqual').classList.toggle('active', m==='equal');
+  document.getElementById('modeRandom').classList.toggle('active', m==='random');
+  calcPreview();
+}
+
+function calcPreview() {
+  const amt = parseFloat(document.getElementById('totalAmount').value) || 0;
+  const rec = parseInt(document.getElementById('recipientCount').value) || 1;
+  const asset = document.getElementById('assetSelect').value;
+  const isRecValid = rec >= 1 && rec <= 1000;
+  const minUsd = asset === 'btc' ? 1 / STATE.btcPrice : 0.001;
+  const perPerson = amt / rec;
+  const usd = asset === 'btc' ? (amt * STATE.btcPrice).toFixed(2) : '—';
+  const perPersonUsd = asset === 'btc' ? (perPerson * STATE.btcPrice).toFixed(4) : '—';
+  
+  let preview = `<strong>Total:</strong> ${amt} ${asset.toUpperCase()} (≈ $${usd} USD)<br>`;
+  preview += `<strong>Recipients:</strong> ${rec} ${isRecValid ? '✅' : '❌ Must be 1–1,000'}<br>`;
+  preview += `<strong>Mode:</strong> ${STATE.mode === 'equal' ? '⚖️ Equal split' : '🎲 Random amounts'}<br>`;
+  preview += `<strong>Per person:</strong> ${perPerson.toFixed(8)} ${asset.toUpperCase()} (≈ $${perPersonUsd})`;
+  if (asset === 'btc' && perPerson * STATE.btcPrice < 1) {
+    preview += `<br><span style="color:#e74c3c">⚠️ Each recipient must receive at least $1.00</span>`;
+  }
+  
+  document.getElementById('previewBox').innerHTML = `<div>${preview}</div>`;
+  document.getElementById('usdPreview').textContent = asset === 'btc' ? `≈ $${usd} USD` : '';
+}
+
+function resetForm() {
+  document.getElementById('totalAmount').value = '';
+  document.getElementById('recipientCount').value = '10';
+  document.getElementById('packetMsg').value = '';
+  document.getElementById('creatorTwitter').value = '';
+  document.getElementById('customTokenAddr').value = '';
+  document.getElementById('assetSelect').value = 'btc';
+  STATE.mode = 'equal';
+  document.getElementById('modeEqual').classList.add('active');
+  document.getElementById('modeRandom').classList.remove('active');
+  calcPreview();
+}
+
+// ===================== CREATE =====================
+function generateCode(len=8) {
+  return Array.from({length:len},()=>'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random()*36)]).join('');
+}
+
+function generateDistribution(total, count, mode) {
+  if (mode === 'equal') {
+    const each = total / count;
+    return Array(count).fill(each);
+  } else {
+    // Random with min guarantee
+    let amounts = [];
+    const minBtc = 1 / STATE.btcPrice;
+    const minPct = minBtc * count;
+    if (total < minPct) return null;
+    let remaining = total;
+    for (let i = 0; i < count - 1; i++) {
+      const maxGive = remaining - minBtc * (count - i - 1);
+      const give = Math.random() * (maxGive - minBtc) + minBtc;
+      amounts.push(give);
+      remaining -= give;
+    }
+    amounts.push(remaining);
+    return amounts.sort(() => Math.random()-0.5);
+  }
+}
+
+function createRedPacket() {
+  if (!STATE.connected) { toast('Please connect your Opnet Wallet first!', 'error'); return; }
+  
+  const amt = parseFloat(document.getElementById('totalAmount').value);
+  const rec = parseInt(document.getElementById('recipientCount').value);
+  const asset = document.getElementById('assetSelect').value;
+  const msg = document.getElementById('packetMsg').value;
+  const twitter = document.getElementById('creatorTwitter').value.trim();
+  const expiry = parseInt(document.getElementById('expirySelect').value);
+  const customAddr = document.getElementById('customTokenAddr').value.trim();
+  
+  // Validation
+  if (!amt || amt <= 0) { toast('Enter a valid amount', 'error'); return; }
+  if (!rec || rec < 1 || rec > 1000) { toast('Recipients must be between 1 and 1,000', 'error'); return; }
+  if (!twitter) { toast('Please enter your Twitter handle', 'error'); return; }
+  if (asset === 'custom' && !customAddr) { toast('Enter custom token contract address', 'error'); return; }
+  
+  const minPerPerson = asset === 'btc' ? 1 / STATE.btcPrice : 0;
+  if (asset === 'btc' && (amt / rec) < minPerPerson) {
+    toast(`Each recipient must receive at least $1. Minimum total: ${(minPerPerson * rec).toFixed(8)} BTC`, 'error');
+    return;
+  }
+
+  const distribution = generateDistribution(amt, rec, STATE.mode);
+  if (!distribution) { toast('Could not create valid distribution', 'error'); return; }
+
+  // Simulate UTXO creation
+  toast('Creating UTXO...', 'info');
+  
+  setTimeout(() => {
+    const code = generateCode(8);
+    const now = new Date();
+    const packet = {
+      id: 'RP_' + Date.now(),
+      code,
+      link: `https://btcredpacket.io/claim/${code}`,
+      theme: STATE.theme,
+      network: STATE.network,
+      asset,
+      contractAddr: asset === 'pill' ? TOKEN_CONTRACTS[STATE.network]?.pill :
+                   asset === 'moto' ? TOKEN_CONTRACTS[STATE.network]?.moto :
+                   asset === 'custom' ? customAddr : null,
+      totalAmount: amt,
+      recipients: rec,
+      mode: STATE.mode,
+      distribution,
+      claimed: 0,
+      claimedAddrs: [],
+      message: msg,
+      creatorTwitter: twitter.startsWith('@') ? twitter : '@' + twitter,
+      createdAt: now.toISOString(),
+      expiresAt: new Date(now.getTime() + expiry * 3600 * 1000).toISOString(),
+      creator: STATE.address,
+      utxoTxid: 'utxo_' + Math.random().toString(36).substr(2,16),
+      status: 'active'
+    };
+
+    STATE.packets.unshift(packet);
+    STATE.createdPacket = packet;
+    savePackets();
+    updateStats();
+    renderExplore();
+    renderHistory();
+    resetForm();
+    showSuccessModal(packet);
+    launchConfetti();
+    toast('Red Packet created! UTXO locked on-chain 🎉', 'success');
+  }, 1200);
+}
+
+function showSuccessModal(p) {
+  const cfg = THEME_CONFIG[p.theme];
+  document.getElementById('successBody').innerHTML = `
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:4rem">${cfg.emoji}</div>
+      <div style="font-size:0.9rem;color:var(--text-muted)">${cfg.name} Red Packet</div>
+    </div>
+    <div class="alert alert-success">✅ UTXO created on <strong>${NETWORKS[p.network].name}</strong></div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="balance-row"><span>Total Amount</span><span style="color:var(--gold);font-weight:700">${p.totalAmount} ${p.asset.toUpperCase()}</span></div>
+      <div class="balance-row"><span>Recipients</span><span style="font-weight:700">${p.recipients}</span></div>
+      <div class="balance-row"><span>Mode</span><span style="font-weight:700">${p.mode === 'equal' ? '⚖️ Equal' : '🎲 Random'}</span></div>
+      <div class="balance-row"><span>UTXO Txid</span><span style="font-size:0.7rem;word-break:break-all">${p.utxoTxid}</span></div>
+    </div>
+    <div class="section-title" style="font-size:0.9rem">🔗 Claim Code</div>
+    <div class="invite-code">${p.code}</div>
+    <div style="height:12px"></div>
+    <div class="section-title" style="font-size:0.9rem">🌐 Invitation Link</div>
+    <div class="invite-box">
+      <span class="invite-link">${p.link}</span>
+      <button class="btn btn-sm btn-outline" onclick="copyText('${p.link}')">Copy</button>
+    </div>
+    <div class="alert alert-warning" style="margin-top:12px">
+      ⚠️ Recipients must follow <strong>${p.creatorTwitter}</strong> and <strong>@KangCrypto8</strong> before claiming.
+    </div>`;
+  openModal('successModal');
+}
+
+// ===================== CLAIM =====================
+function lookupCode() {
+  const code = document.getElementById('claimCode').value.trim().toUpperCase() ||
+               extractCodeFromLink(document.getElementById('claimLink').value.trim());
+  if (!code) { toast('Enter a claim code or link', 'error'); return; }
+  
+  const packet = STATE.packets.find(p => p.code === code);
+  if (!packet) { toast('Red Packet not found. Check your code.', 'error'); return; }
+  if (packet.status === 'expired') { toast('This Red Packet has expired.', 'error'); return; }
+  if (packet.claimed >= packet.recipients) { toast('All packets have been claimed!', 'error'); return; }
+  
+  renderClaimPreview(packet);
+}
+
+function extractCodeFromLink(link) {
+  const m = link.match(/\/claim\/([A-Z0-9]{8})/i);
+  return m ? m[1].toUpperCase() : null;
+}
+
+function renderClaimPreview(packet) {
+  const perPerson = packet.mode === 'equal'
+    ? packet.totalAmount / packet.recipients
+    : packet.distribution[packet.claimed] || (packet.totalAmount / packet.recipients);
+  
+  document.getElementById('claimPacketCard').innerHTML = `
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+        <div style="font-size:2.5rem">${THEME_CONFIG[packet.theme]?.emoji || '🧧'}</div>
+        <div>
+          <div style="font-weight:700;font-size:1.1rem">${packet.message || 'Red Packet'}</div>
+          <div style="font-size:0.8rem;color:var(--text-muted)">${NETWORKS[packet.network].name} • ${THEME_CONFIG[packet.theme]?.name}</div>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100,(packet.claimed/packet.recipients)*100)}%"></div></div>
+      <div class="balance-row"><span>Claimed</span><span><strong>${packet.claimed}</strong> / ${packet.recipients}</span></div>
+      <div class="balance-row"><span>You May Receive</span><span style="color:var(--gold);font-weight:700">${packet.mode==='equal' ? '~' : ''}${perPerson.toFixed(8)} ${packet.asset.toUpperCase()}</span></div>
+      <div class="balance-row"><span>Expires</span><span>${new Date(packet.expiresAt).toLocaleString()}</span></div>
+      <div class="balance-row"><span>Creator</span><span>${packet.creatorTwitter}</span></div>
+    </div>`;
+
+  const alreadyClaimed = STATE.connected && packet.claimedAddrs.some(c => c.addr === STATE.address);
+  const followsDone = true; // In real app, verify Twitter follows via API
+  
+  document.getElementById('reqList').innerHTML = `
+    <div class="req-item">
+      <div class="req-icon ${STATE.connected ? 'done' : 'pending'}">${STATE.connected ? '✓' : '○'}</div>
+      <div class="req-text">Connect Opnet Wallet ${STATE.connected ? `(${STATE.address?.slice(0,10)}...)` : ''}</div>
+    </div>
+    <div class="req-item">
+      <div class="req-icon pending">○</div>
+      <div class="req-text">Follow <a href="https://twitter.com/${packet.creatorTwitter.replace('@','')}" target="_blank" style="color:var(--primary-light)">${packet.creatorTwitter}</a> on Twitter</div>
+    </div>
+    <div class="req-item">
+      <div class="req-icon pending">○</div>
+      <div class="req-text">Follow <a href="https://twitter.com/KangCrypto8" target="_blank" style="color:var(--primary-light)">@KangCrypto8</a> on Twitter</div>
+    </div>
+    ${alreadyClaimed ? `<div class="req-item"><div class="req-icon done">✓</div><div class="req-text" style="color:var(--gold)">Already claimed!</div></div>` : ''}`;
+
+  if (alreadyClaimed) document.getElementById('claimSubmitBtn').disabled = true;
+  document.getElementById('claimSubmitBtn').setAttribute('data-code', packet.code);
+  document.getElementById('claimPreview').classList.remove('hidden');
+}
+
+function submitClaim() {
+  if (!STATE.connected) { toast('Connect your wallet first!', 'error'); return; }
+  const code = document.getElementById('claimSubmitBtn').getAttribute('data-code');
+  const packet = STATE.packets.find(p => p.code === code);
+  if (!packet) { toast('Packet not found', 'error'); return; }
+  if (packet.claimed >= packet.recipients) { toast('All packets claimed!', 'error'); return; }
+  if (packet.claimedAddrs.some(c => c.addr === STATE.address)) { toast('Already claimed!', 'error'); return; }
+
+  // Simulate confirmation
+  toast('Verifying Twitter follows...', 'info');
+  setTimeout(() => {
+    const amount = packet.distribution[packet.claimed];
+    packet.claimedAddrs.push({ addr: STATE.address, amount, claimedAt: new Date().toISOString() });
+    packet.claimed++;
+    if (packet.claimed >= packet.recipients) packet.status = 'claimed';
+    
+    STATE.claims.unshift({ packetId: packet.id, code, amount, asset: packet.asset, network: packet.network, claimedAt: new Date().toISOString(), addr: STATE.address });
+    savePackets();
+    updateStats();
+    renderHistory();
+    renderExplore();
+    
+    launchConfetti();
+    toast(`🎉 Claimed ${amount.toFixed(8)} ${packet.asset.toUpperCase()}!`, 'success');
+    document.getElementById('claimPreview').classList.add('hidden');
+    document.getElementById('claimCode').value = '';
+    document.getElementById('claimLink').value = '';
+  }, 1500);
+}
+
+// ===================== EXPLORE =====================
+function renderExplore() {
+  const grid = document.getElementById('exploreGrid');
+  const active = STATE.packets.filter(p => p.status === 'active');
+  if (!active.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:40px">No active red packets yet. <a href="#" onclick="switchTab('create')" style="color:var(--primary-light)">Create one!</a></div>`;
+    return;
+  }
+  grid.innerHTML = active.map(p => renderPacketCard(p)).join('');
+}
+
+function renderPacketCard(p) {
+  const cfg = THEME_CONFIG[p.theme] || THEME_CONFIG.cny;
+  const pct = Math.min(100, (p.claimed / p.recipients) * 100);
+  const net = NETWORKS[p.network];
+  return `<div class="packet-card theme-${p.theme}" onclick="showPacketDetail('${p.id}')">
+    <div class="packet-header">
+      <div class="packet-badge">${cfg.emoji} ${cfg.name}</div>
+      <div class="packet-amount">${p.totalAmount.toFixed(6)}</div>
+      <div class="packet-token">${p.asset.toUpperCase()} • ${net.short}</div>
+    </div>
+    <div class="packet-body">
+      ${p.message ? `<div style="font-style:italic;color:var(--text-muted);font-size:0.85rem;margin-bottom:8px">"${p.message}"</div>` : ''}
+      <div class="packet-info-row"><span>Claimed</span><span>${p.claimed} / ${p.recipients}</span></div>
+      <div class="packet-info-row"><span>Mode</span><span>${p.mode === 'equal' ? '⚖️ Equal' : '🎲 Random'}</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="packet-info-row"><span>Expires</span><span>${new Date(p.expiresAt).toLocaleDateString()}</span></div>
+    </div>
+    <div class="packet-footer">
+      <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();claimFromCard('${p.code}')">🎁 Claim</button>
+      <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();copyText('${p.link}')">🔗 Share</button>
+    </div>
+  </div>`;
+}
+
+function claimFromCard(code) {
+  document.getElementById('claimCode').value = code;
+  switchTab('claim');
+  lookupCode();
+}
+
+// ===================== HISTORY =====================
+function renderHistory() {
+  const tbody = document.getElementById('historyBody');
+  if (!STATE.packets.length && !STATE.claims.length) {
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;color:var(--text-muted);padding:40px">No history yet.</td></tr>`;
+    return;
+  }
+  
+  const rows = STATE.packets.map(p => {
+    const statusClass = p.status === 'active' ? 'status-active' : p.status === 'claimed' ? 'status-claimed' : 'status-expired';
+    return `<tr>
+      <td><span style="font-family:monospace;font-weight:700;letter-spacing:0.05em">${p.code}</span></td>
+      <td>${THEME_CONFIG[p.theme]?.emoji} ${THEME_CONFIG[p.theme]?.name.split(' ')[0]}</td>
+      <td>${NETWORKS[p.network]?.short}</td>
+      <td>${p.asset.toUpperCase()}</td>
+      <td>${p.totalAmount.toFixed(6)}</td>
+      <td>${p.recipients}</td>
+      <td>${p.claimed}</td>
+      <td><span class="status-badge ${statusClass}">${p.status}</span></td>
+      <td>${new Date(p.createdAt).toLocaleDateString()}</td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-sm btn-outline" onclick="showPacketDetail('${p.id}')">👁</button>
+        <button class="btn btn-sm btn-outline" onclick="copyText('${p.code}')">📋</button>
+      </td>
+    </tr>`;
+  });
+  tbody.innerHTML = rows.join('');
+}
+
+// ===================== DETAIL MODAL =====================
+function showPacketDetail(id) {
+  const p = STATE.packets.find(x => x.id === id);
+  if (!p) return;
+  const cfg = THEME_CONFIG[p.theme];
+  const pct = Math.min(100, (p.claimed / p.recipients) * 100);
+  
+  document.getElementById('modalTitle').textContent = `${cfg.emoji} Red Packet ${p.code}`;
+  
+  let recipientsHtml = '';
+  if (p.claimedAddrs.length > 0) {
+    recipientsHtml = `<div class="section-title" style="font-size:0.9rem;margin-top:16px">👥 Recipients (${p.claimedAddrs.length})</div>
+    <div class="recipient-grid">
+      ${p.claimedAddrs.map(r => `<div class="recipient-item">
+        <div class="recipient-addr">${r.addr.slice(0,12)}...${r.addr.slice(-6)}</div>
+        <div class="recipient-amount">${r.amount.toFixed(8)} ${p.asset.toUpperCase()}</div>
+        <div style="font-size:0.7rem;color:var(--text-muted)">${new Date(r.claimedAt).toLocaleString()}</div>
+      </div>`).join('')}
+    </div>`;
+  }
+  
+  document.getElementById('modalBody').innerHTML = `
+    <div class="alert alert-${p.status === 'active' ? 'success' : 'info'}">${p.status === 'active' ? '✅ Active' : '📦 ' + p.status}</div>
+    <div class="form-grid" style="margin-bottom:16px">
+      <div><label>Network</label><div style="font-weight:600;margin-top:4px">${NETWORKS[p.network].name}</div></div>
+      <div><label>Asset</label><div style="font-weight:600;margin-top:4px">${p.asset.toUpperCase()}</div></div>
+      <div><label>Total Amount</label><div style="font-weight:600;color:var(--gold);margin-top:4px">${p.totalAmount.toFixed(8)}</div></div>
+      <div><label>Mode</label><div style="font-weight:600;margin-top:4px">${p.mode === 'equal' ? '⚖️ Equal' : '🎲 Random'}</div></div>
+      <div><label>Creator</label><div style="font-weight:600;margin-top:4px">${p.creatorTwitter}</div></div>
+      <div><label>UTXO</label><div style="font-size:0.7rem;word-break:break-all;margin-top:4px">${p.utxoTxid}</div></div>
+    </div>
+    ${p.contractAddr ? `<div class="alert alert-info" style="font-size:0.75rem">Contract: ${p.contractAddr}</div>` : ''}
+    <div class="progress-bar" style="height:10px;margin:12px 0"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div style="text-align:center;font-size:0.85rem;color:var(--text-muted)">${p.claimed} / ${p.recipients} claimed (${pct.toFixed(1)}%)</div>
+    <div class="divider"></div>
+    <label>Claim Code</label>
+    <div class="invite-code" style="margin:8px 0">${p.code}</div>
+    <label>Invitation Link</label>
+    <div class="invite-box" style="margin-top:6px">
+      <span class="invite-link">${p.link}</span>
+      <button class="btn btn-sm btn-outline" onclick="copyText('${p.link}')">Copy</button>
+    </div>
+    ${recipientsHtml}`;
+  
+  document.getElementById('modalFooter').innerHTML = `
+    <button class="btn btn-outline" onclick="closeModal('detailModal')">Close</button>
+    <button class="btn btn-gold" onclick="copyText('${p.link}');toast('Link copied!','success')">📤 Share Link</button>`;
+  
+  openModal('detailModal');
+}
+
+// ===================== UTILS =====================
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function switchTab(tab) {
+  ['create','claim','explore','history'].forEach(t => {
+    document.getElementById(`pane-${t}`).classList.toggle('hidden', t !== tab);
+    document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+  });
+  if (tab === 'explore') renderExplore();
+  if (tab === 'history') renderHistory();
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => toast('Copied!', 'success'));
+}
+
+function sharePacket() {
+  const p = STATE.createdPacket;
+  if (!p) return;
+  const text = `🧧 I just created a Bitcoin Red Packet! Get ${p.totalAmount} ${p.asset.toUpperCase()} shared among ${p.recipients} lucky recipients.\n\nClaim with code: ${p.code}\n${p.link}\n\nBy @KangCrypto8`;
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
+}
+
+function toast(msg, type='info') {
+  const container = document.getElementById('toast');
+  const el = document.createElement('div');
+  el.className = 'toast-msg';
+  const colors = {info:'var(--primary-light)',success:'#2ecc71',error:'#e74c3c',warning:'#f1c40f'};
+  el.style.borderLeft = `3px solid ${colors[type] || colors.info}`;
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(() => { el.style.opacity='0'; el.style.transform='translateX(40px)'; el.style.transition='all 0.3s'; setTimeout(()=>el.remove(),300); }, 3000);
+}
+
+function savePackets() {
+  try { localStorage.setItem('brp_packets', JSON.stringify(STATE.packets)); } catch(e){}
+  try { localStorage.setItem('brp_claims', JSON.stringify(STATE.claims)); } catch(e){}
+}
+
+function updateStats() {
+  const activePackets = STATE.packets.filter(p => p.status === 'active').length;
+  const totalClaimed = STATE.packets.reduce((a,p) => a + p.claimed, 0);
+  const myPackets = STATE.packets.length;
+  const claimRate = myPackets > 0 ? Math.round((totalClaimed / STATE.packets.reduce((a,p) => a + p.recipients, 0)) * 100) : 0;
+  
+  document.getElementById('myPacketCount').textContent = myPackets;
+  document.getElementById('totalSentCount').textContent = totalClaimed;
+  document.getElementById('claimRateDisplay').textContent = claimRate + '%';
+  document.getElementById('totalPackets').textContent = myPackets;
+  document.getElementById('totalClaimed').textContent = totalClaimed;
+  document.getElementById('totalParticipants').textContent = STATE.packets.reduce((a,p)=>a+p.claimedAddrs.length,0);
+}
+
+function launchConfetti() {
+  const colors = ['#c0392b','#f1c40f','#27ae60','#3498db','#9b59b6','#e74c3c','#f39c12'];
+  for (let i = 0; i < 80; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'confetti-piece';
+      c.style.cssText = `left:${Math.random()*100}vw;width:${Math.random()*10+6}px;height:${Math.random()*6+4}px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${Math.random()*2+2}s;animation-delay:0s;`;
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 4000);
+    }, Math.random() * 600);
+  }
+}
+
+// ===================== INIT =====================
+updateAssetSelect();
+initParticles();
+calcPreview();
+updateStats();
+renderHistory();
+
+// Handle URL claim codes
+const urlParams = new URLSearchParams(window.location.search);
+const codeParam = urlParams.get('code') || (window.location.pathname.match(/\/claim\/([A-Z0-9]{8})/i) || [])[1];
+if (codeParam) {
+  document.getElementById('claimCode').value = codeParam.toUpperCase();
+  switchTab('claim');
+  setTimeout(lookupCode, 500);
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+
+// Expiry checker
+setInterval(() => {
+  let changed = false;
+  STATE.packets.forEach(p => {
+    if (p.status === 'active' && new Date(p.expiresAt) < new Date()) {
+      p.status = 'expired'; changed = true;
+    }
+  });
+  if (changed) { savePackets(); renderExplore(); renderHistory(); }
+}, 60000);
+</script>
+</body>
+</html>
